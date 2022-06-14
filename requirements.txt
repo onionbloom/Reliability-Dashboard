@@ -44,8 +44,7 @@ mplcursors                ==0.5.1
 munkres                   ==1.1.4            
 nest-asyncio              ==1.5.5            
 numpy                     ==1.22.3                       
-openpyxl                  ==3.0.10    
-openssl                   ==1.1.1n           
+openpyxl                  ==3.0.10               
 packaging                 ==21.3             
 pandas                    ==1.4.2            
 parso                     ==0.8.3            
