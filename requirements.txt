@@ -37,8 +37,7 @@ itsdangerous              ==2.1.2
 jedi                      ==0.18.1          
 jinja2                    ==3.1.1           
 joblib                    ==1.1.0                                   
-kiwisolver                ==1.4.2           
-lcms2                     ==2.12            
+kiwisolver                ==1.4.2                       
 lerc                      ==3.0             
 libblas                   ==3.9.0           
 libbrotlicommon           ==1.0.9           
