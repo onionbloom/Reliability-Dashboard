@@ -30,8 +30,7 @@ flask-compress            ==1.11
 fonttools                 ==4.31.2                 
 future                    ==0.18.2                       
 idna                      ==3.3             
-importlib-metadata        ==4.11.3          
-intel-openmp              ==2022.0.0        
+importlib-metadata        ==4.11.3                  
 ipykernel                 ==6.11.0          
 ipython                   ==8.2.0           
 itsdangerous              ==2.1.2           
