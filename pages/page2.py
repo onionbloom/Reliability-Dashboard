@@ -5,7 +5,7 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 
 
-raw_ad = pd.read_excel("C:/Users/moeab/OneDrive/Documents/Work/Pelita/Documents and Publications/AD/AD biweekly report/AD Biweekly.xlsx")
+raw_ad = pd.read_csv("csv_data_files/AD Biweekly.csv")
 df_ad = raw_ad.drop(columns=['Source.Name', 'ATA', 'RECEIVED DATE', 'ISSUE DATE', 'EFFECTIVE DATE', 'BIWEEKLY NUMBER', 'PIC', 'EVALUATION DATE', 'TC HOLDER', 'AC TYPE', 'SUBJECT', 'SUPERSEDES', 'REFERENCE', 'AFFECTED PART', 'METHOD OF COMPLIANCE', 'COMPLIANCE TIME', 'REPEAT INTERVAL', 'EFFECTIVITY', 'PARTS PROHIBITION', 'ENGINEERING ACTION'])
 dff = df_ad[df_ad['TDE NUMBER'].notna()]
 
