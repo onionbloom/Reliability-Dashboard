@@ -27,8 +27,7 @@ et-xmlfile                ==1.1.0
 executing                 ==0.8.3            
 flask                     ==2.1.1            
 flask-compress            ==1.11             
-fonttools                 ==4.31.2           
-freetype                  ==2.10.4           
+fonttools                 ==4.31.2                 
 future                    ==0.18.2              
 icu                       ==69.1            
 idna                      ==3.3             
