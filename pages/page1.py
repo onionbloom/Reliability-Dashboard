@@ -68,6 +68,8 @@ layout = dbc.Container([
 @callback(
     Output('graph', 'figure'),
     Output('engine-radio', 'value'),
+    Output('top5-radio', 'value'),
+    Output('metrics-radio'),
     Input('engine-radio', 'value'),
     Input('top5-radio', 'value'),
     Input('metrics-radio', 'value')
@@ -93,7 +95,7 @@ def update_graph(engineVal, topVal, metricsVal):
         else:
             fig = plotFl()
     
-    return fig, " "
+    return fig, " ", " ", " "
 
 @callback(
     Output('status-model', 'children'),
