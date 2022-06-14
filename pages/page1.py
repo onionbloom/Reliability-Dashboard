@@ -69,7 +69,7 @@ layout = dbc.Container([
     Output('graph', 'figure'),
     Output('engine-radio', 'value'),
     Output('top5-radio', 'value'),
-    Output('metrics-radio'),
+    Output('metrics-radio', 'value'),
     Input('engine-radio', 'value'),
     Input('top5-radio', 'value'),
     Input('metrics-radio', 'value')
