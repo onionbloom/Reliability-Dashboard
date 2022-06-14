@@ -52,12 +52,7 @@ libtiff                   ==4.3.0
 libwebp                   ==1.2.2           
 libwebp-base              ==1.2.2           
 libxcb                    ==1.13            
-libzlib                   ==1.2.11                     
-m2w64-gcc-libgfortran     ==5.3.0                      
-m2w64-gcc-libs            ==5.3.0                      
-m2w64-gcc-libs-core       ==5.3.0                      
-m2w64-gmp                 ==6.1.0                      
-m2w64-libwinpthread-git   ==5.0.0.4634.697f757         
+libzlib                   ==1.2.11                           
 markupsafe                ==2.1.1            
 matplotlib                ==3.5.1            
 matplotlib-base           ==3.5.1            
