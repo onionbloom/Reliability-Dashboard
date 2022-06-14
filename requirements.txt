@@ -28,8 +28,7 @@ executing                 ==0.8.3
 flask                     ==2.1.1            
 flask-compress            ==1.11             
 fonttools                 ==4.31.2                 
-future                    ==0.18.2              
-icu                       ==69.1            
+future                    ==0.18.2                       
 idna                      ==3.3             
 importlib-metadata        ==4.11.3          
 intel-openmp              ==2022.0.0        
