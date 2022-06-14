@@ -43,8 +43,7 @@ matplotlib                ==3.5.1
 mplcursors                ==0.5.1                        
 munkres                   ==1.1.4            
 nest-asyncio              ==1.5.5            
-numpy                     ==1.22.3           
-openjpeg                  ==2.4.0            
+numpy                     ==1.22.3                       
 openpyxl                  ==3.0.10    
 openssl                   ==1.1.1n           
 packaging                 ==21.3             
