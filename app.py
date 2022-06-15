@@ -4,7 +4,6 @@ from dash import Dash, dcc, html, callback
 from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc # dbc v1.1.0 gets access to Bootstrap v5.1.3
 
-
 import pandas as pd
 
 from pages import page1, page2
@@ -34,12 +33,12 @@ app.layout = html.Div([
                             dbc.NavItem(dbc.NavLink("AD, SB Management",id='techpub-link', href="/techpub"))
                         ], 
                         navbar=True)
-                    ])
+                    ], fluid=True)
                 )
             ])
         ],
         class_name="pt-3")
-    ]),
+    ], fluid=True),
     html.Div(id='page-content')
 ])
 

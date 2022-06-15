@@ -62,7 +62,7 @@ layout = dbc.Container([
         ], width=3)
     ],
     class_name="pt-3")   
-])
+], fluid=True)
 
 ### CALLBACKS
 @callback(

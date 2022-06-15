@@ -3,13 +3,15 @@ import dash_bootstrap_components as dbc
 
 from calculations import get_dr, get_FHFC_tot, get_tia, get_del, get_status
 
+cardTitleClasses="card-title text-light text-center fw-bold"
+
 # The dispatch reliability card. Dispatch reliability is calculated with the calc_dr function.
 dr = get_dr()
 card_dr = dbc.Card(
     [
         dbc.CardBody(
             [
-                html.H6("Dispatch Reliability", className="card-title text-light text-center"),
+                html.P("Dispatch Reliability", className=cardTitleClasses),
                 html.P(
                     "{dr:.2f} %".format(dr=dr),
                     className="card-text fs-2 text-light my-auto text-center", 
@@ -153,7 +155,7 @@ card_FC = dbc.Card(
     [
         dbc.CardBody(
             [
-                html.H6("Fleet Flight Cycles", className="card-title text-light text-center"),
+                html.P("Fleet Flight Cycles", className=cardTitleClasses),
                 html.P(
                     "{FC:.0f} FC".format(FC=FC),
                     className="card-text fs-2 my-auto text-light text-center"
@@ -167,7 +169,7 @@ card_FC = dbc.Card(
 
 card_FH = dbc.Card([
     dbc.CardBody([
-        html.H6("Fleet Flight Hours", className="card-title text-light text-center"),
+        html.P("Fleet Flight Hours", className=cardTitleClasses),
         html.P(
             "{FH:.0f} FH".format(FH=FH), className="card-text fs-2 my-auto text-light text-center"
         )
@@ -179,7 +181,7 @@ tia_rate = get_tia()
 card_tia = dbc.Card(
     [
         dbc.CardBody([
-            html.H6("TIA Rate", className="card-title text-light text-center"),
+            html.H6("TIA Rate", className=cardTitleClasses),
             html.P(
                 "{tia:.2f}".format(tia=tia_rate),
                 className="card-text fs-2 text-light text-center"
@@ -192,7 +194,7 @@ card_tia = dbc.Card(
 
 card_cotd = dbc.Card([
     dbc.CardBody([
-        html.H6("COTD", className='card-title text-light text-center'),
+        html.P("COTD", className=cardTitleClasses),
         html.P(
             '###',
             className="card-text fs-2 fw-bold text-light text-center"
@@ -204,7 +206,7 @@ card_cotd = dbc.Card([
 delays = get_del()
 card_del = dbc.Card([
     dbc.CardBody([
-        html.H6("Delays", className='card-title text-light text-center'),
+        html.P("Delays", className=cardTitleClasses),
         html.P(
             delays,
             className="card-text fs-2 text-light text-center"
