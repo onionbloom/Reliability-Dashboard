@@ -9,52 +9,101 @@ from dash_bootstrap_templates import load_figure_template
 
 template = load_figure_template("minty")
 
-x0 = datetime.now() - relativedelta(months=+6) 
-x1 = datetime.now() + relativedelta(months=+6)
+def get_x_range(period):
 
-x_range = [x0.strftime("%Y-%m-%d"), x1.strftime("%Y-%m-%d")]
+    if period == 'W-MON':
+        x0 = datetime.now() - relativedelta(days=+60) 
+        x1 = datetime.now() + relativedelta(days=+6)
+    elif period == 'M':
+        x0 = datetime.now() - relativedelta(months=+3) 
+        x1 = datetime.now() + relativedelta(months=+3)
+
+    x_range = [x0.strftime("%Y-%m-%d"), x1.strftime("%Y-%m-%d")]
+
+    return x_range
 
 # Plots the monthly FC utilization summary
-def plotFl():
+def plotFl(weekly):
     # Read csv
-    dr_raw = pd.read_csv("./csv_data_files/DR.csv")
-    dr_raw['MON-YEAR'] = pd.to_datetime(dr_raw['MON-YEAR'])
+    util_raw = pd.read_csv("./csv_data_files/UTIL.csv")
+    util_raw['TO_DATETIME'] = pd.to_datetime(util_raw['TO_DATE'] + ' ' + util_raw['TO_TIME (UTC)'])
+    util_raw['LAND_DATETIME'] = pd.to_datetime(util_raw['LAND_DATE'] + ' ' + util_raw['LAND_TIME (UTC)'])
+    util_raw['FL_DURR'] = util_raw['LAND_DATETIME'] - util_raw['TO_DATETIME']
+    util_raw.drop(columns=['TO_DATE', 'TO_TIME (UTC)', 'LAND_DATE', 'LAND_TIME (UTC)'], inplace=True)
+    
+    if weekly:
+        # Create dataframe for weekly DR
+        df = util_raw.groupby(pd.Grouper(key='TO_DATETIME', freq='W-MON'))[['CYC', 'DELAY', 'IMPACT_DEL']].sum()
+        df['DR'] = (df['CYC'] - df['DELAY']) * 100 / df['CYC']
 
-    # Create dataframes
-    df = dr_raw
+        subfig = make_subplots(specs=[[{"secondary_y": True}]])
+        dr_target = [99.80, 99.80]
 
-    subfig = make_subplots(specs=[[{"secondary_y": True}]])
-    dr_target = [99.80, 99.80]
+        fig2 = px.line(df, x=df.index, y="DR", template=template, line_shape='spline', markers=True)
+        fig2.add_trace(go.Scatter(x=["2020-05-01", "2030-05-01"], y=dr_target, name="DR Target", line=dict(color='#F3969A',dash='dash', width=1)))
+        fig2.update_traces(
+            yaxis='y2',
+            hovertemplate='Period: %{x} <br>Dispatch Reliability: %{y}'
+            )
 
-    fig2 = px.line(df, x="MON-YEAR", y="DR", template=template, line_shape='spline', markers=True)
-    fig2.add_trace(go.Scatter(x=["2020-05-01", "2030-05-01"], y=dr_target, name="DR Target", line=dict(color='#F3969A',dash='dash', width=1)))
-    fig2.update_traces(
-        yaxis='y2',
-        hovertemplate='Period: %{x} <br>Dispatch Reliability: %{y}'
+        fig = px.bar(df, x=df.index, y="CYC", template=template)
+        fig.update_traces(
+            hovertemplate='Period: %{x} <br>Revenue Flights: %{y}',
+            marker_line_width=0,
+            width= 86400000 * 6,
+            marker_color="#6CC3D4"
+            )
+
+        subfig.add_traces(fig.data + fig2.data)
+        subfig.update_layout(
+            title_text= "Monthly Dispatch Reliability and Utilization",
+            title_xanchor="center",
+            title_x=0.5,
+            xaxis= dict(title='Month', type='date', dtick='M1', range=get_x_range('W-MON')),
+            yaxis= dict(title='Number of Flights', tick0=0, dtick=5, tickmode= 'linear', rangemode='tozero', range=[0, 20]),
+            yaxis2= dict(title= 'Dispatch Reliability', tick0=85, dtick=5, range=[85, 105], tickmode='linear'),
+            modebar= dict(orientation='v', remove=['zoom', 'lasso' , 'autoscale']),
+            title_yanchor="top",
+            title_y=0.95,
+            hovermode='x unified'
         )
+    else:
+        # Create dataframe for Monthly DR
+        df = util_raw.groupby(pd.Grouper(key='TO_DATETIME', freq='M'))[['CYC', 'DELAY', 'IMPACT_DEL']].sum()
+        df['DR'] = (df['CYC'] - df['DELAY']) * 100 / df['CYC']
 
-    fig = px.bar(df, x="MON-YEAR", y="MON_NUM_REV_FLIGHTS", template=template)
-    fig.update_traces(
-        hovertemplate='Period: %{x} <br>Revenue Flights: %{y}',
-        marker_line_width=0,
-        width= 86400000*20,
-        marker_color="#6CC3D4"
+        subfig = make_subplots(specs=[[{"secondary_y": True}]])
+        dr_target = [99.80, 99.80]
+
+        fig2 = px.line(df, x=df.index, y="DR", template=template, line_shape='spline', markers=True)
+        fig2.add_trace(go.Scatter(x=["2020-05-01", "2030-05-01"], y=dr_target, name="DR Target", line=dict(color='#F3969A',dash='dash', width=1)))
+        fig2.update_traces(
+            yaxis='y2',
+            hovertemplate='Period: %{x} <br>Dispatch Reliability: %{y}'
+            )
+
+        fig = px.bar(df, x=df.index, y="CYC", template=template)
+        fig.update_traces(
+            hovertemplate='Period: %{x} <br>Revenue Flights: %{y}',
+            marker_line_width=0,
+            width= 86400000*20,
+            marker_color="#6CC3D4"
+            )
+
+        subfig.add_traces(fig.data + fig2.data)
+        subfig.update_layout(
+            title_text= "Monthly Dispatch Reliability and Utilization",
+            title_xanchor="center",
+            title_x=0.5,
+            xaxis= dict(title='Month', type='date', dtick='M2', range=get_x_range('M')),
+            yaxis= dict(title='Number of Flights', tick0=20, dtick=5, tickmode= 'linear', rangemode='tozero', range=[20, 50]),
+            yaxis2= dict(title= 'Dispatch Reliability', tick0=95, dtick=2, range=[95, 102], tickmode='linear'),
+            modebar= dict(orientation='v', remove=['zoom', 'lasso' , 'autoscale']),
+            title_yanchor="top",
+            title_y=0.95,
+            hovermode='x unified'
         )
-
-    subfig.add_traces(fig.data + fig2.data)
-    subfig.update_layout(
-        title_text= "Monthly Dispatch Reliability and Utilization",
-        title_xanchor="center",
-        title_x=0.5,
-        xaxis= dict(title='Month', type='date', dtick='M2', range=x_range),
-        yaxis= dict(title='Number of Flights', tick0=0, dtick=5, tickmode= 'linear', rangemode='tozero', range=[15, 40]),
-        yaxis2= dict(title= 'Dispatch Reliability', tick0=92, dtick=2, range=[92, 102], tickmode='linear'),
-        modebar= dict(orientation='v', remove=['zoom', 'lasso' , 'autoscale']),
-        title_yanchor="top",
-        title_y=0.95,
-        hovermode='x unified'
-    )
-
+        
     return subfig
 
 # Plots the top 5 unscheduled removals
@@ -131,7 +180,7 @@ def plotDel():
     return fig
 
 # Plot DR and SI
-def plotSI():
+def plotSI(weekly=False):
     # Read csv
     dr_raw = pd.read_csv("./csv_data_files/DR.csv")
     dr_raw['MON-YEAR'] = pd.to_datetime(dr_raw['MON-YEAR'])
@@ -160,7 +209,7 @@ def plotSI():
         title_text= "Monthly Dispatch Reliability and Severity Index",
         title_xanchor="center",
         title_x=0.5,
-        xaxis= dict(title='Month', type='date', dtick='M2', range=x_range),
+        xaxis= dict(title='Month', type='date', dtick='M2', range=get_x_range('M')),
         yaxis= dict(title='Severity Index', tick0=0, dtick=1, tickmode= 'linear', rangemode='tozero', range=[0, 10]),
         yaxis2= dict(title= 'Dispatch Reliability', tick0=92, dtick=2, range=[92, 102], tickmode='linear'),
         modebar= dict(orientation='v', remove=['zoom', 'lasso' , 'autoscale']),

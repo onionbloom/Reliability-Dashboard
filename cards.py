@@ -1,12 +1,12 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
-from calculations import get_dr, get_FHFC_tot, get_tia, get_del, get_status
+from calculations import get_dr_ytd, get_FHFC_tot, get_tia, get_del, get_status
 
 cardTitleClasses="card-title text-light text-center fw-bold"
 
 # The dispatch reliability card. Dispatch reliability is calculated with the calc_dr function.
-dr = get_dr()
+dr = get_dr_ytd()
 card_dr = dbc.Card(
     [
         dbc.CardBody(
@@ -21,7 +21,8 @@ card_dr = dbc.Card(
         ),
     ],
     color="primary" if dr>=99.80 else "secondary",
-    class_name="w-100"
+    class_name="w-100",
+    id="card-dr"
 )
 
 # The fleet status card
@@ -200,7 +201,7 @@ card_cotd = dbc.Card([
             className="card-text fs-2 fw-bold text-light text-center"
         )
     ])
-], color="info", class_name="w-100")
+], color="info", class_name="w-100", id="card-cotd")
 
 # The delay and cancelations card
 delays = get_del()
@@ -212,7 +213,7 @@ card_del = dbc.Card([
             className="card-text fs-2 text-light text-center"
         )
     ])
-], color="info", class_name="w-100")
+], color="info", class_name="w-100", id="card-del")
 
 # The AC status card
 card_status =  dbc.Card([

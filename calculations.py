@@ -19,6 +19,28 @@ def get_dr(month=datetime.now().month-1, year=datetime.now().year):
 
     return DR
 
+def get_dr_ytd():
+    """
+    Function to get the YTD dispatch reliability
+    """
+    util_raw = pd.read_csv("./csv_data_files/UTIL.csv")
+    util_raw['TO_DATETIME'] = pd.to_datetime(util_raw['TO_DATE'] + ' ' + util_raw['TO_TIME (UTC)'])
+    util_raw['LAND_DATETIME'] = pd.to_datetime(util_raw['LAND_DATE'] + ' ' + util_raw['LAND_TIME (UTC)'])
+    util_raw['FLT_DURR'] = util_raw['LAND_DATETIME'] - util_raw['TO_DATETIME']
+    util_raw.drop(columns=['TO_DATE', 'TO_TIME (UTC)', 'LAND_DATE', 'LAND_TIME (UTC)'], inplace=True)
+    del_raw = pd.read_csv("./csv_data_files/DELAYS.csv")
+    del_raw['DATE'] = pd.to_datetime(del_raw['DATE'])
+
+    ytd_rev_filter = util_raw['TO_DATETIME'] < datetime.now()
+    ytd_del_filter = del_raw['DATE'] < datetime.now()
+
+    ytd_rev_fl = util_raw.groupby(ytd_rev_filter)['CYC'].sum()[1]
+    ytd_num_del = len(del_raw[ytd_del_filter])
+
+    DR = int(((ytd_rev_fl-ytd_num_del)/ytd_rev_fl)*100)  
+
+    return DR 
+
 def get_FHFC_tot():
     """
     Function to calculate the total fleet hours (FH) and total fleet cycles (FC). No input parameters is required.

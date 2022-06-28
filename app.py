@@ -6,7 +6,7 @@ import dash_bootstrap_components as dbc # dbc v1.1.0 gets access to Bootstrap v5
 
 import pandas as pd
 
-from pages import page1, page2
+from pages import page1, page2, page3
 
 #### Instantiate Dash
 app = Dash(__name__, external_stylesheets=[dbc.themes.MINTY], suppress_callback_exceptions=True)
@@ -53,6 +53,8 @@ def display_page(pathname):
         return page1.layout, True, False
     elif pathname == '/techpub':
         return page2.layout, False, True
+    elif pathname == '/LLP':
+        return page3.layout, False, False
     else:
         return page1.layout, True, False
 

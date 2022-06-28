@@ -1,5 +1,5 @@
 from dash import dcc, html, ctx, callback
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 
 from cards import card_tia, card_dr, card_FC, card_FH, card_del, card_cotd, card_status
@@ -9,25 +9,34 @@ from calculations import get_status
 ### LAYOUT
 layout = dbc.Container([
     dbc.Row([
-        dbc.Col([card_dr], class_name='d-flex justify-content-center', width=2),
+        dbc.Col([
+            card_dr,
+            dbc.Tooltip("Year-to-date Dispatch Reliability", target="card-dr", placement="bottom")
+            ], class_name='d-flex justify-content-center', width=2),
         dbc.Col([card_FH], class_name='d-flex justify-content-center', width=2),
         dbc.Col([card_FC], class_name='d-flex justify-content-center', width=2),
-        dbc.Col([card_del], class_name='d-flex justify-content-center', width=2),
-        dbc.Col([card_cotd], class_name='d-flex justify-content-center', width=2),
+        dbc.Col([
+            card_del,
+            dbc.Tooltip("Total number of delays", target="card-del", placement="bottom")
+            ], class_name='d-flex justify-content-center', width=2),
+        dbc.Col([
+            card_cotd,
+            dbc.Tooltip("Year-to-date rate of Contribution of Technical Delays", target="card-cotd", placement="bottom")
+            ], class_name='d-flex justify-content-center', width=2),
         dbc.Col([card_tia], class_name='d-flex justify-content-center', width=2)
     ],
     class_name="pt-3"),
 
     dbc.Row([
         dbc.Col([
-            html.H5("Aircraft Status", className="fw-bold text-center", style={"color": "#2F3B47"}),
+            html.H5("Aircraft Status", className="fw-bold text-center", style={"color": "#013764"}),
             card_status
         ],width=3),
         dbc.Col([
             dcc.Graph(id='graph')
         ],width=6),
         dbc.Col([
-            html.H5("Plot Selection", className="fw-bold text-center", style={"color": "#2F3B47"}),
+            html.H5("Plot Selection", className="fw-bold text-center", style={"color": "#013764"}),
             dbc.Accordion([
                 dbc.AccordionItem([
                     dbc.RadioItems(
@@ -56,7 +65,17 @@ layout = dbc.Container([
                             {"label": "Severity Index", "value":"si"},
                             {"label": "COTD", "value":"cotd"}
                         ], id="metrics-radio"
-                    )
+                    ),
+                    dbc.Label("Plot Configuration"),
+                    dbc.Checklist(
+                        options=[
+                            {"label": "Weekly", "value": True}
+                        ],
+                        switch=True,
+                        id="config-switch",
+                        value=[]
+                    ),
+                    dbc.Tooltip("Toggle to display a weekly graph", target="config-switch")
                 ], title="Reliability Metrics")
             ]),
         ], width=3)
@@ -72,9 +91,10 @@ layout = dbc.Container([
     Output('metrics-radio', 'value'),
     Input('engine-radio', 'value'),
     Input('top5-radio', 'value'),
-    Input('metrics-radio', 'value')
+    Input('metrics-radio', 'value'),
+    State('config-switch', "value")
 )
-def update_graph(engineVal, topVal, metricsVal):
+def update_graph(engineVal, topVal, metricsVal, switch):
     triggered_id = ctx.triggered_id
 
     if triggered_id == "engine-radio":
@@ -86,14 +106,14 @@ def update_graph(engineVal, topVal, metricsVal):
         elif topVal == "top5_rem":
             fig = plotRem()
         else:
-            fig = plotFl()
+            fig = plotFl(switch)
     else:
         if metricsVal == "dr":
-            fig = plotFl()
+            fig = plotFl(switch)
         elif metricsVal == "si":
-            fig = plotSI()
+            fig = plotSI(switch)
         else:
-            fig = plotFl()
+            fig = plotFl(switch)
     
     return fig, " ", " ", " "
 
