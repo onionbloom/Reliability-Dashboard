@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 def get_dr(month=datetime.now().month-1, year=datetime.now().year):
     """
@@ -28,18 +29,37 @@ def get_dr_ytd():
     util_raw['LAND_DATETIME'] = pd.to_datetime(util_raw['LAND_DATE'] + ' ' + util_raw['LAND_TIME (UTC)'])
     util_raw['FLT_DURR'] = util_raw['LAND_DATETIME'] - util_raw['TO_DATETIME']
     util_raw.drop(columns=['TO_DATE', 'TO_TIME (UTC)', 'LAND_DATE', 'LAND_TIME (UTC)'], inplace=True)
-    del_raw = pd.read_csv("./csv_data_files/DELAYS.csv")
-    del_raw['DATE'] = pd.to_datetime(del_raw['DATE'])
 
-    ytd_rev_filter = util_raw['TO_DATETIME'] < datetime.now()
-    ytd_del_filter = del_raw['DATE'] < datetime.now()
+    # Filter year-to-date
+    last12Month = datetime.now() - relativedelta(months=+12)
+    df_ytd = util_raw[util_raw['TO_DATETIME'] > last12Month]
 
-    ytd_rev_fl = util_raw.groupby(ytd_rev_filter)['CYC'].sum()[1]
-    ytd_num_del = len(del_raw[ytd_del_filter])
+    # Calculate YTD DR
+    DR_YTD = (df_ytd['CYC'].sum() - df_ytd['DELAY'].sum()) * 100 / df_ytd['CYC'].sum()
 
-    DR = int(((ytd_rev_fl-ytd_num_del)/ytd_rev_fl)*100)  
+    return DR_YTD
 
-    return DR 
+def get_cotd_ytd():
+    """
+    Function to get the YTD contribution of technical delays
+    """
+    util_raw = pd.read_csv("./csv_data_files/UTIL.csv")
+    util_raw['TO_DATETIME'] = pd.to_datetime(util_raw['TO_DATE'] + ' ' + util_raw['TO_TIME (UTC)'])
+    util_raw['LAND_DATETIME'] = pd.to_datetime(util_raw['LAND_DATE'] + ' ' + util_raw['LAND_TIME (UTC)'])
+    util_raw['FLT_DURR'] = util_raw['LAND_DATETIME'] - util_raw['TO_DATETIME']
+    util_raw.drop(columns=['TO_DATE', 'TO_TIME (UTC)', 'LAND_DATE', 'LAND_TIME (UTC)'], inplace=True)
+
+    # Filter year-to-date
+    last12Month = datetime.now() - relativedelta(months=+12)
+    df_ytd = util_raw[util_raw['TO_DATETIME'] > last12Month]
+
+    # Calculate the YTD COTD
+    COTD_YTD = (util_raw['IMPACT_DEL'].sum() + util_raw['DELAY'].sum()) / util_raw['CYC'].sum()
+
+    return COTD_YTD
+
+
+
 
 def get_FHFC_tot():
     """

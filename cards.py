@@ -1,7 +1,8 @@
-from dash import html, dcc
+from dash import html, dash_table
 import dash_bootstrap_components as dbc
+import pandas as pd
 
-from calculations import get_dr_ytd, get_FHFC_tot, get_tia, get_del, get_status
+from calculations import get_dr_ytd, get_FHFC_tot, get_tia, get_del, get_cotd_ytd
 
 cardTitleClasses="card-title text-light text-center fw-bold"
 
@@ -20,7 +21,7 @@ card_dr = dbc.Card(
             ]
         ),
     ],
-    color="primary" if dr>=99.80 else "secondary",
+    color="primary" if dr>=95.00 else "secondary",
     class_name="w-100",
     id="card-dr"
 )
@@ -177,7 +178,7 @@ card_FH = dbc.Card([
     ])
 ], color="info", class_name="w-100")
 
-# The TIA rate
+# The TIA rate card
 tia_rate = get_tia()
 card_tia = dbc.Card(
     [
@@ -193,15 +194,17 @@ card_tia = dbc.Card(
     class_name="w-100"
 )
 
+# The COTD rate card
+cotd = get_cotd_ytd()
 card_cotd = dbc.Card([
     dbc.CardBody([
         html.P("COTD", className=cardTitleClasses),
         html.P(
-            '###',
-            className="card-text fs-2 fw-bold text-light text-center"
+            "{cotd:.3f}".format(cotd=cotd),
+            className="card-text fs-2 text-light text-center"
         )
     ])
-], color="info", class_name="w-100", id="card-cotd")
+], color="primary" if cotd < 0.2 else "secondary", class_name="w-100", id="card-cotd")
 
 # The delay and cancelations card
 delays = get_del()
@@ -216,35 +219,39 @@ card_del = dbc.Card([
 ], color="info", class_name="w-100", id="card-del")
 
 # The AC status card
+status = pd.read_csv("./csv_data_files/CONFIG_DB.csv")[['REGISTRATION', 'STATUS']]
 card_status =  dbc.Card([
     dbc.CardBody([
-        dcc.Dropdown(
-            id="status-dropdown",
-            options=[
-                {"label": "PK-PWA", "value":"PK-PWA"},
-                {"label": "PK-PWC", "value":"PK-PWC"},
-                {"label": "PK-PWD", "value":"PK-PWD"}
+        dash_table.DataTable(
+            status.to_dict("records"),
+            [{"name": i, "id": i} for i in status.columns],
+            style_cell={
+                'font-family': 'Segoe UI,-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif',
+                'font-size': '0.75rem',
+                'text-align': 'center',
+            },
+            style_header={
+                'font-weight':'bold'
+            },
+            style_data_conditional=[
+                {
+                    "if":{
+                        "filter_query":"{STATUS} = ONLINE",
+                        "column_id":"STATUS"
+                    },
+                    "backgroundColor":"#57CC9D",
+                    "color":"white"
+                },
+                {
+                    "if":{
+                        "filter_query":"{STATUS} = AOG",
+                        "column_id":"STATUS"
+                    },
+                    "backgroundColor":"#FF7850",
+                    "color":"white"
+                }
             ]
-        ),
-        dbc.Row([
-            dbc.Col([
-                html.P("Model:", className="card-text text-start mb-1"),
-                html.P("MSN:", className="card-text text-start mb-1"),
-                html.P("Weight Variant:", className="card-text text-start mb-1"),
-                html.P("Status:", className="card-text text-start mb-1"),
-                html.P("Total Hours:", className="card-text text-start mb-1"),
-                html.P("Total Cycles:", className="card-text text-start mb-1")
-
-            ],width=6),
-            dbc.Col([
-                html.P(id='status-model', className="card-text text-end mb-1"),
-                html.P(id='status-msn', className="card-text text-end mb-1"),
-                html.P(id='status-wv', className="card-text text-end mb-1"),
-                html.P(id='status-status', className="card-text text-end mb-1"),
-                html.P(id='status-fh', className="card-text text-end mb-1"),
-                html.P(id='status-fc', className="card-text text-end mb-1")
-            ], width=6)
-            ], class_name="pt-3")
-        
+            
+        )                
     ])
 ])

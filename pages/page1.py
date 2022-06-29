@@ -3,11 +3,12 @@ from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 
 from cards import card_tia, card_dr, card_FC, card_FH, card_del, card_cotd, card_status
-from plots import plotFl, plotRem, plotOil, plotDel, plotSI
+from plots import plotFl, plotRem, plotOil, plotDel, plotSI, plotCOTD
 from calculations import get_status
 
 ### LAYOUT
 layout = dbc.Container([
+    # Row of Cards
     dbc.Row([
         dbc.Col([
             card_dr,
@@ -26,14 +27,15 @@ layout = dbc.Container([
         dbc.Col([card_tia], class_name='d-flex justify-content-center', width=2)
     ],
     class_name="pt-3"),
-
+    
+    # Row of Graphics
     dbc.Row([
         dbc.Col([
             html.H5("Aircraft Status", className="fw-bold text-center", style={"color": "#013764"}),
             card_status
         ],width=3),
         dbc.Col([
-            dcc.Graph(id='graph')
+            dcc.Graph(id='graph', config=dict(toImageButtonOptions=dict(width=1871, height=437, filename="dash_graph", format="png"), displaylogo=False))
         ],width=6),
         dbc.Col([
             html.H5("Plot Selection", className="fw-bold text-center", style={"color": "#013764"}),
@@ -84,6 +86,7 @@ layout = dbc.Container([
 ], fluid=True)
 
 ### CALLBACKS
+# Plots Callback
 @callback(
     Output('graph', 'figure'),
     Output('engine-radio', 'value'),
@@ -113,31 +116,6 @@ def update_graph(engineVal, topVal, metricsVal, switch):
         elif metricsVal == "si":
             fig = plotSI(switch)
         else:
-            fig = plotFl(switch)
+            fig = plotCOTD(switch)
     
     return fig, " ", " ", " "
-
-@callback(
-    Output('status-model', 'children'),
-    Output('status-msn', 'children'),
-    Output('status-wv', 'children'),
-    Output('status-status', 'children'),
-    Output('status-fh', 'children'),
-    Output('status-fc', 'children'),
-    Input('status-dropdown', 'value')
-)
-def update_status(value):
-    status = get_status()
-    filtered = status[status['REGISTRATION'] == value]
-
-    if len(filtered) > 0:
-        return [
-            filtered['AIRCRAFT TYPE'].item(), 
-            format(filtered['MSN'].item(),"05d"), # Format to include a leading zero and 5 character integer digit 
-            str(filtered['WEIGHT VARIANT'].item()), # Format to string
-            filtered['STATUS'].item(), 
-            format(filtered['CURR_TOTAL_HOURS'].item(), ",.2f"), # Format to 2 decimal places and thousands separator 
-            format(filtered['CURR_TOTAL_CYCLES'].item(), ",.0f") # Format to 0 decimal places and thousands separator
-        ]
-    else:
-        return ["N/A"] * 6
