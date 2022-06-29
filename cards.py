@@ -232,25 +232,7 @@ card_status =  dbc.Card([
             },
             style_header={
                 'font-weight':'bold'
-            },
-            style_data_conditional=[
-                {
-                    "if":{
-                        "filter_query":"{STATUS} = ONLINE",
-                        "column_id":"STATUS"
-                    },
-                    "backgroundColor":"#57CC9D",
-                    "color":"white"
-                },
-                {
-                    "if":{
-                        "filter_query":"{STATUS} = AOG",
-                        "column_id":"STATUS"
-                    },
-                    "backgroundColor":"#FF7850",
-                    "color":"white"
-                }
-            ]
+            }
             
         )                
     ])
