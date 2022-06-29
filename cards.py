@@ -233,7 +233,6 @@ card_status =  dbc.Card([
             style_header={
                 'font-weight':'bold'
             }
-            
         )                
     ])
 ])
