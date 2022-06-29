@@ -1,6 +1,5 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from matplotlib import markers
 
 import pandas as pd
 import plotly.express as px

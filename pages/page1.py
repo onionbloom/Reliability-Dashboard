@@ -4,7 +4,6 @@ import dash_bootstrap_components as dbc
 
 from cards import card_tia, card_dr, card_FC, card_FH, card_del, card_cotd, card_status
 from plots import plotFl, plotRem, plotOil, plotDel, plotSI, plotCOTD
-from calculations import get_status
 
 ### LAYOUT
 layout = dbc.Container([
