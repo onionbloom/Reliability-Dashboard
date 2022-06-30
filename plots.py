@@ -37,7 +37,7 @@ def plotFl(weekly):
         df['DR'] = (df['CYC'] - df['DELAY']) * 100 / df['CYC']
 
         subfig = make_subplots(specs=[[{"secondary_y": True}]])
-        dr_target = [99.80, 99.80]
+        dr_target = [95.00, 95.00]
 
         fig2 = px.line(df, x=df.index, y="DR", template=template, line_shape='spline', markers=True)
         fig2.add_trace(go.Scatter(x=["2020-05-01", "2030-05-01"], y=dr_target, name="DR Target", line=dict(color='#F3969A',dash='dash', width=1)))
@@ -84,7 +84,7 @@ def plotFl(weekly):
         df['DR'] = (df['CYC'] - df['DELAY']) * 100 / df['CYC']
 
         subfig = make_subplots(specs=[[{"secondary_y": True}]])
-        dr_target = [99.80, 99.80]
+        dr_target = [95.00, 95.00]
 
         fig2 = px.line(df, x=df.index, y="DR", template=template, line_shape='spline', markers=True)
         fig2.add_trace(go.Scatter(x=["2020-05-01", "2030-05-01"], y=dr_target, name="DR Target", line=dict(color='#F3969A',dash='dash', width=1)))
@@ -116,7 +116,7 @@ def plotFl(weekly):
                 range=get_x_range('M'),
                 tickformat="%b \n%Y"),
             yaxis= dict(title='Number of Flights', tick0=20, dtick=5, tickmode= 'linear', rangemode='tozero', range=[20, 50]),
-            yaxis2= dict(title= 'Dispatch Reliability', tick0=95, dtick=2, range=[95, 102], tickmode='linear'),
+            yaxis2= dict(title= 'Dispatch Reliability', tick0=95, dtick=2, range=[94, 101], tickmode='linear'),
             modebar= dict(orientation='v', remove=['zoom', 'lasso' , 'autoscale']),
             title_yanchor="top",
             title_y=0.95,
@@ -254,7 +254,7 @@ def plotCOTD(weekly):
         df['COTD'] = (df['DELAY'] + df['IMPACT_DEL']) / df['CYC']
 
         subfig = make_subplots(specs=[[{"secondary_y": True}]])
-        dr_target = [99.80, 99.80]
+        dr_target = [95.00, 95.00]
 
         fig2 = px.line(df, x=df.index, y="DR", template=template, line_shape='spline', markers=True)
         fig2.add_trace(go.Scatter(x=["2020-05-01", "2030-05-01"], y=dr_target, name="DR Target", line=dict(color='#F3969A',dash='dash', width=1)))
@@ -300,7 +300,7 @@ def plotCOTD(weekly):
         df['COTD'] = (df['DELAY'] + df['IMPACT_DEL']) / df['CYC']
 
         subfig = make_subplots(specs=[[{"secondary_y": True}]])
-        dr_target = [99.80, 99.80]
+        dr_target = [95.00, 95.00]
 
         fig2 = px.line(df, x=df.index, y="DR", template=template, line_shape='spline', markers=True)
         fig2.add_trace(go.Scatter(x=["2020-05-01", "2030-05-01"], y=dr_target, name="DR Target", line=dict(color='#F3969A',dash='dash', width=1)))
@@ -330,7 +330,7 @@ def plotCOTD(weekly):
                 range=get_x_range('M'),
                 tickformat="%b \n%Y"),
             yaxis= dict(title='COTD', tick0=0, dtick=0.1, tickmode= 'linear', rangemode='tozero', range=[0, 1]),
-            yaxis2= dict(title= 'Dispatch Reliability', tick0=95, dtick=2, range=[95, 102], tickmode='linear'),
+            yaxis2= dict(title= 'Dispatch Reliability', tick0=95, dtick=2, range=[94, 101], tickmode='linear'),
             modebar= dict(orientation='v', remove=['zoom', 'lasso' , 'autoscale']),
             title_yanchor="top",
             title_y=0.95,
