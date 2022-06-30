@@ -7,6 +7,8 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from dash_bootstrap_templates import load_figure_template
 
+from dataframes import util_df
+
 template = load_figure_template("minty")
 
 def get_x_range(period):
@@ -24,16 +26,13 @@ def get_x_range(period):
 
 # Plots the monthly FC utilization summary
 def plotFl(weekly):
-    # Read csv
-    util_raw = pd.read_csv("./csv_data_files/UTIL.csv")
-    util_raw['TO_DATETIME'] = pd.to_datetime(util_raw['TO_DATE'] + ' ' + util_raw['TO_TIME (UTC)'])
-    util_raw['LAND_DATETIME'] = pd.to_datetime(util_raw['LAND_DATE'] + ' ' + util_raw['LAND_TIME (UTC)'])
-    util_raw['FL_DURR'] = util_raw['LAND_DATETIME'] - util_raw['TO_DATETIME']
-    util_raw.drop(columns=['TO_DATE', 'TO_TIME (UTC)', 'LAND_DATE', 'LAND_TIME (UTC)'], inplace=True)
+    """
+    This function plots the dispatch reliability and utilization in cycles. Can show weekly or monthly plot depending on the state of the selector in the app.
+    """
     
     if weekly:
         # Create dataframe for weekly DR
-        df = util_raw.groupby(pd.Grouper(key='TO_DATETIME', freq='W-WED'))[['CYC', 'DELAY', 'IMPACT_DEL']].sum()
+        df = util_df.groupby(pd.Grouper(key='TO_DATETIME', freq='W-WED'))[['CYC', 'DELAY', 'IMPACT_DEL']].sum()
         df['DR'] = (df['CYC'] - df['DELAY']) * 100 / df['CYC']
 
         subfig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -80,7 +79,7 @@ def plotFl(weekly):
         )
     else:
         # Create dataframe for Monthly DR
-        df = util_raw.groupby(pd.Grouper(key='TO_DATETIME', freq='M'))[['CYC', 'DELAY', 'IMPACT_DEL']].sum()
+        df = util_df.groupby(pd.Grouper(key='TO_DATETIME', freq='M'))[['CYC', 'DELAY', 'IMPACT_DEL']].sum()
         df['DR'] = (df['CYC'] - df['DELAY']) * 100 / df['CYC']
 
         subfig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -208,7 +207,7 @@ def plotSI(weekly=False):
     df = dr_raw
 
     subfig = make_subplots(specs=[[{"secondary_y": True}]])
-    dr_target = [99.80, 99.80]
+    dr_target = [95.00, 95.00]
 
     fig2 = px.line(df, x="MON-YEAR", y="DR", template=template, line_shape='spline', markers=True)
     fig2.add_trace(go.Scatter(x=["2020-05-01", "2030-05-01"], y=dr_target, name="DR Target", line=dict(color='#F3969A',dash='dash', width=1)))
@@ -241,15 +240,10 @@ def plotSI(weekly=False):
 
 # Plot DR and COTD
 def plotCOTD(weekly):
-    util_raw = pd.read_csv("./csv_data_files/UTIL.csv")
-    util_raw['TO_DATETIME'] = pd.to_datetime(util_raw['TO_DATE'] + ' ' + util_raw['TO_TIME (UTC)'])
-    util_raw['LAND_DATETIME'] = pd.to_datetime(util_raw['LAND_DATE'] + ' ' + util_raw['LAND_TIME (UTC)'])
-    util_raw['FL_DURR'] = util_raw['LAND_DATETIME'] - util_raw['TO_DATETIME']
-    util_raw.drop(columns=['TO_DATE', 'TO_TIME (UTC)', 'LAND_DATE', 'LAND_TIME (UTC)'], inplace=True)
 
     if weekly:
         # Create dataframe for weekly DR
-        df = util_raw.groupby(pd.Grouper(key='TO_DATETIME', freq='W-WED'))[['CYC', 'DELAY', 'IMPACT_DEL']].sum()
+        df = util_df.groupby(pd.Grouper(key='TO_DATETIME', freq='W-WED'))[['CYC', 'DELAY', 'IMPACT_DEL']].sum()
         df['DR'] = (df['CYC'] - df['DELAY']) * 100 / df['CYC']
         df['COTD'] = (df['DELAY'] + df['IMPACT_DEL']) / df['CYC']
 
@@ -295,7 +289,7 @@ def plotCOTD(weekly):
         )
     else:
         # Create dataframe for Monthly DR
-        df = util_raw.groupby(pd.Grouper(key='TO_DATETIME', freq='M'))[['CYC', 'DELAY', 'IMPACT_DEL']].sum()
+        df = util_df.groupby(pd.Grouper(key='TO_DATETIME', freq='M'))[['CYC', 'DELAY', 'IMPACT_DEL']].sum()
         df['DR'] = (df['CYC'] - df['DELAY']) * 100 / df['CYC']
         df['COTD'] = (df['DELAY'] + df['IMPACT_DEL']) / df['CYC']
 
