@@ -221,6 +221,15 @@ card_del = dbc.Card([
 # The AC status card
 status = pd.read_csv("./csv_data_files/CONFIG_DB.csv")[['REGISTRATION', 'STATUS']]
 card_status =  dbc.Card([
-    dbc.CardBody([      
+    dbc.CardBody([
+        dash_table.DataTable(
+            status.to_dict('records'),
+            [{"name": col, "id": col} for col in status.columns],
+            style_cell={
+                'font-family': 'Segoe UI,-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif',
+                'font-size': '0.75rem',
+                'text-align': 'center',
+            }
+        )      
     ])
 ])
