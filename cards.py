@@ -159,7 +159,7 @@ card_FC = dbc.Card(
             [
                 html.P("Fleet Flight Cycles", className=cardTitleClasses),
                 html.P(
-                    "{FC:.0f} FC".format(FC=FC),
+                    "{FC} FC".format(FC=FC),
                     className="card-text fs-2 my-auto text-light text-center"
                 )
             ]
@@ -173,7 +173,7 @@ card_FH = dbc.Card([
     dbc.CardBody([
         html.P("Fleet Flight Hours", className=cardTitleClasses),
         html.P(
-            "{FH:.0f} FH".format(FH=FH), className="card-text fs-2 my-auto text-light text-center"
+            "{FH:.2f} FH".format(FH=FH), className="card-text fs-2 my-auto text-light text-center"
         )
     ])
 ], color="info", class_name="w-100")

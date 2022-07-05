@@ -58,16 +58,11 @@ def get_FHFC_tot():
     Function to calculate the total fleet hours (FH) and total fleet cycles (FC). No input parameters is required.
     """
 
-    raw_csv = pd.read_csv("./csv_data_files/CONFIG_DB.csv")
-
-    raw_csv['EIS TOTAL HOURS'] = (pd.to_timedelta(raw_csv['EIS TOTAL HOURS'])/np.timedelta64(1,'s'))/3600
-    eis_hours = raw_csv['EIS TOTAL HOURS'].sum().astype('int32')
-    fleet_hours = raw_csv['CURR_TOTAL_HOURS'].sum().astype('int32')
-    FH = fleet_hours - eis_hours
-    FC = int(raw_csv['CURR_TOTAL_CYCLES'].sum()) - raw_csv['EIS TOTAL CYCLES'].sum().astype('int32')
+    FH = util_df['FL_DURR'].sum()/np.timedelta64(1,'s')/3600
+    FC = util_df['CYC'].sum()
 
     return FH, FC
-
+    
 def get_tia(month=datetime.now().month-1, year=datetime.now().year):
     """
     Function that gets the TIA Rate from db
