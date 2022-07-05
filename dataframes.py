@@ -13,7 +13,7 @@ util_df['FL_DURR'] = util_df['LAND_DATETIME'] - util_df['TO_DATETIME']
 util_df.drop(columns=['TO_DATE', 'TO_TIME (UTC)', 'LAND_DATE', 'LAND_TIME (UTC)'], inplace=True)
 
 ### TECHLOG
-techlog_raw = pd.read_csv("csv_data_files\TECHLOG.csv")
+techlog_raw = pd.read_csv("./csv_data_files/TECHLOG.csv")
 techlog_raw['DATE'] = pd.to_datetime(techlog_raw['DATE'], format="%Y-%m-%d")
 techlog_raw['ATA'] = techlog_raw['ATA'].astype("category")
 
