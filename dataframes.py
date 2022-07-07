@@ -91,3 +91,8 @@ for reg in eng2_consum.index.get_level_values(0).unique():
 eng1_consum['ENG1_OIL_QTZ/FH'] = list1
 eng2_consum['ENG2_OIL_QTZ/FH'] = list2
 
+
+def get_util_df():
+    df = util_df
+
+    return df
