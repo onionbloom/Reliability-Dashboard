@@ -1,4 +1,5 @@
 from datetime import datetime
+from turtle import width
 from dateutil.relativedelta import relativedelta
 
 import pandas as pd
@@ -7,7 +8,11 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from dash_bootstrap_templates import load_figure_template
 
-from dataframes import util_df, ucl_tbl, eng1_consum, eng2_consum
+from dataframes import get_fluids_df, get_util_df, get_pirep_df
+
+util_df = get_util_df()
+ucl_tbl = get_pirep_df()
+eng1_consum, eng2_consum = get_fluids_df()
 
 template = load_figure_template("minty")
 
@@ -297,7 +302,7 @@ def plotCOTD(weekly):
                     ticklen=4,
                     dtick= 1000 * 60 * 60 * 24 * 7,
                 )),
-            yaxis= dict(title='COTD', tick0=0, dtick=0.1, tickmode= 'linear', rangemode='tozero', range=[0, 1]),
+            yaxis= dict(title='COTD', tick0=0, dtick=0.1, tickmode= 'linear', rangemode='tozero', range=[0, 0.7]),
             yaxis2= dict(title= 'Dispatch Reliability', tick0=85, dtick=5, range=[75, 105], tickmode='linear'),
             modebar= dict(orientation='v', remove=['zoom', 'lasso' , 'autoscale']),
             title_yanchor="top",
@@ -346,7 +351,7 @@ def plotCOTD(weekly):
                 ticklen=10, 
                 range=get_x_range('M'),
                 tickformat="%b \n%Y"),
-            yaxis= dict(title='COTD', tick0=0, dtick=0.1, tickmode= 'linear', rangemode='tozero', range=[0, 1]),
+            yaxis= dict(title='COTD', tick0=0, dtick=0.1, tickmode= 'linear', rangemode='tozero', range=[0, 0.7]),
             yaxis2= dict(title= 'Dispatch Reliability', tick0=95, dtick=2, range=[94, 101], tickmode='linear'),
             modebar= dict(orientation='v', remove=['zoom', 'lasso' , 'autoscale']),
             title_yanchor="top",
@@ -365,35 +370,36 @@ def plot5PIREP():
 def plotUCL():
     df = ucl_tbl.fillna(0)
 
-    fig=px.bar(df, x=df.index, y='PIRRATE_12mth', template=template)
+    fig=px.bar(df, x=df.index, y=['PIRRATE_12mth'], template=template)
     fig.update_traces(
         hovertemplate='ATA: %{x} <br>PIREP Rate: %{y}',
         marker_color='#6CC3D4',
         yaxis='y2'
     )
 
-    fig2 = px.bar(df, x=df.index, y='UCL', template=template)
+    fig2 = px.bar(df, x=df.index, y=['UCL'], template=template)
     fig2.update_traces(
+        width=1,
+        marker_line_width=0,
         marker_color='rgba(255,206,103,.25)',
         hovertemplate='ATA: %{x} <br>Upper Control Limit: %{y}'
         )
-    fig2.update_layout(bargap=0, bargroupgap=0)
 
     subfig = make_subplots(specs=[[{"secondary_y": True}]])
     subfig.add_traces(fig.data + fig2.data)
+    
     subfig.update_layout(
         title_text= "Last 12-month PIREP Rate and UCL of Each ATA Chapter",
         title_xanchor="center",
         title_x=0.5,
         xaxis=dict(
-            title="ATA Chapter",
-            ticklabelmode="period"
+            title="ATA Chapter"
         ),
         yaxis2=dict(
             title="PIREP Rate",
             tick0=0,
             dtick=0.015,
-            range=[0,0.02]
+            range=[0,0.06]
         ),
         yaxis=dict(
             title="Upper Control Limit",
@@ -401,6 +407,7 @@ def plotUCL():
             dtick=0.5,
             range=[0,2]
         ),
+        barmode='stack',
         modebar= dict(remove=['zoom', 'lasso', 'autoscale']),
         hovermode='x unified'
     )
