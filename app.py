@@ -29,8 +29,9 @@ app.layout = html.Div([
                             )
                         ),
                         dbc.Nav([
-                            dbc.NavItem(dbc.NavLink("Fleet Reliability Dashboard",id='dash-link', href="/dashboard")),
-                            dbc.NavItem(dbc.NavLink("AD, SB Management",id='techpub-link', href="/techpub"))
+                            dbc.NavItem(dbc.NavLink("Fleet Reliability Dashboard",id="dash-link", href="/dashboard")),
+                            dbc.NavItem(dbc.NavLink("AD, SB Management",id="techpub-link", href="/techpub")),
+                            dbc.NavItem(dbc.NavLink("PIREP Analysis", id="pirep-link", href="pirep"))
                         ], 
                         navbar=True)
                     ], fluid=True)
@@ -53,7 +54,7 @@ def display_page(pathname):
         return page1.layout, True, False
     elif pathname == '/techpub':
         return page2.layout, False, True
-    elif pathname == '/LLP':
+    elif pathname == '/pirep':
         return page3.layout, False, False
     else:
         return page1.layout, True, False

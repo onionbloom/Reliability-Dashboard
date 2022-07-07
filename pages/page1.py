@@ -3,7 +3,7 @@ from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 
 from cards import card_tia, card_dr, card_FC, card_FH, card_del, card_cotd, card_status
-from plots import plotFl, plotRem, plotOil, plotDel, plotSI, plotCOTD
+from plots import plotFl, plotRem, plotOil, plotDel, plotSI, plotCOTD, plot5PIREP
 
 ### LAYOUT
 layout = dbc.Container([
@@ -40,6 +40,13 @@ layout = dbc.Container([
             html.H5("Plot Selection", className="fw-bold text-center", style={"color": "#013764"}),
             dbc.Accordion([
                 dbc.AccordionItem([
+                    dcc.Dropdown(
+                        id='dropdown-ehm',
+                        options=[
+                            {"label": "PK-PWA", "value": "PK-PWA"},
+                            {"label": "PK-PWC", "value": "PK-PWC"}
+                        ]
+                    ),
                     dbc.RadioItems(
                         options=[
                             {"label": "Oil Consumption", "value": "oil_consum"},
@@ -94,13 +101,14 @@ layout = dbc.Container([
     Input('engine-radio', 'value'),
     Input('top5-radio', 'value'),
     Input('metrics-radio', 'value'),
-    State('config-switch', "value")
+    State('config-switch', 'value'),
+    State('dropdown-ehm', 'value')
 )
-def update_graph(engineVal, topVal, metricsVal, switch):
+def update_graph(engineVal, topVal, metricsVal, switch, dropdown):
     triggered_id = ctx.triggered_id
 
     if triggered_id == "engine-radio":
-        fig = plotOil()
+        fig = plotOil(dropdown)
     
     elif triggered_id == "top5-radio":
         if topVal == "top5_del":
@@ -108,7 +116,7 @@ def update_graph(engineVal, topVal, metricsVal, switch):
         elif topVal == "top5_rem":
             fig = plotRem()
         else:
-            fig = plotFl(switch)
+            fig = plot5PIREP()
     else:
         if metricsVal == "dr":
             fig = plotFl(switch)

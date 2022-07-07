@@ -3,17 +3,18 @@ from dash import dcc, html, dash_table
 from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 
-raw_tbl = pd.read_csv("csv_data_files/699235.csv")
-llp_table = dash_table.DataTable(
-    
-)
+from plots import plotUCL
 
 ### LAYOUT
 layout = dbc.Container([
     dbc.Row([
-        html.H5("ENGINE LLP STATUS", className="fw-bold text-center", style={"color": "#013764"})
-    ], class_name="pt-3"),
-    dbc.Row([
-        dbc.Col([llp_table])
+        dbc.Col([
+            dcc.Graph(id='graph', figure=plotUCL(), config=dict(toImageButtonOptions=dict(width=1871, height=437, filename="dash_graph", format="png"), displaylogo=False))],
+            width=9
+        ),
+        dbc.Col(
+            [],
+            width=3
+        )
     ])
 ], fluid=True)

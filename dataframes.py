@@ -59,10 +59,35 @@ ucl_tbl = pd.DataFrame(dict(
     Description=['AIR CONDITIONING', 'AUTO FLIGHT', 'COMMUNICATIONS', 'ELECTRICAL POWER', 'EQUIPMENT/FURNISHING', 'FIRE PROTECTION', 'FLIGHT CONTROLS', 'FUEL', 'HYDRAULIC POWER', 'ICE & RAIN PROTECTION', 'INDICATING / RECORDING SYSTEMS', 'LANDING GEAR', 'LIGHTS', 'NAVIGATION', 'OXYGEN', 'PNEUMATIC', 'WATER / WASTE', 'INFORMATION SYSTEMS', 'AIRBORNE AUXILIARY POWER', 'STANDARDS PRACTICES & STRUCTURE', 'DOORS', 'NACELLES / PYLONS', 'WINDOWS', ' STANDARD PRACTICES & ENGINE', 'POWER PLANT', 'ENGINE FUEL & CONTROL', 'IGNITION', 'ENGINE AIR', 'ENGINE INDICATING'], 
     PIREPs=[None]*29,
     PIRRATE_12mth=[None]*29,
-    UCL=['NaN']*29)).set_index('ATA')
+    UCL=[None]*29)).set_index('ATA')
 
 for ind in ata_index: 
     ucl = np.sqrt(pirep_tbl.loc[ind,'sq_diff'].sum() / (period-1))
     ucl_tbl['PIREPs'].loc[ind] = sum_pirep.loc[ind]
     ucl_tbl['PIRRATE_12mth'] = ucl_tbl['PIREPs'] / mon_hrs[last12M:thisM]['FL_DURR'].sum()
     ucl_tbl['UCL'].loc[ind] = ucl
+
+### FLUIDS
+fluids = techlog_raw[['AC_REG', 'DATE', 'ENG1_OIL', 'ENG2_OIL', 'APU_OIL', 'IDG1_OIL','G_HYD','B_HYD','Y_HYD']].dropna()
+fluids_3day = fluids.groupby(['AC_REG',pd.Grouper(key='DATE',freq='3D')]).sum()
+hrs_3day = util_df.groupby(['AC_REG', pd.Grouper(key='TO_DATETIME', freq='3D',)])[['FL_DURR']].sum()
+hrs_3day['FL_DURR'] = hrs_3day['FL_DURR']/np.timedelta64(1,'s')/3600
+
+eng1_consum= fluids_3day[fluids_3day['ENG1_OIL']>0][['ENG1_OIL']]
+eng2_consum= fluids_3day[fluids_3day['ENG2_OIL']>0][['ENG2_OIL']]
+
+list1 = []
+list2 = []
+for reg in eng1_consum.index.get_level_values(0).unique():
+    hrs_per_reg = hrs_3day.loc[reg].asfreq('3D', method='ffill')
+    for date in eng1_consum.loc[reg].index.get_level_values(0).unique():
+        list1.append(eng1_consum.loc[idx[reg,date]]['ENG1_OIL'] / hrs_per_reg.loc[date]['FL_DURR'])
+
+for reg in eng2_consum.index.get_level_values(0).unique():
+    hrs_per_reg = hrs_3day.loc[reg].asfreq('3D', method='ffill')
+    for date in eng2_consum.loc[reg].index.get_level_values(0).unique():
+        list2.append(eng2_consum.loc[idx[reg,date]]['ENG2_OIL'] / hrs_per_reg.loc[date]['FL_DURR'])
+
+eng1_consum['ENG1_OIL_QTZ/FH'] = list1
+eng2_consum['ENG2_OIL_QTZ/FH'] = list2
+

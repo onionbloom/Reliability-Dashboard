@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from dash_bootstrap_templates import load_figure_template
 
-from dataframes import util_df
+from dataframes import util_df, ucl_tbl, eng1_consum, eng2_consum
 
 template = load_figure_template("minty")
 
@@ -38,22 +38,28 @@ def plotFl(weekly):
         subfig = make_subplots(specs=[[{"secondary_y": True}]])
         dr_target = [95.00, 95.00]
 
-        fig2 = px.line(df, x=df.index, y="DR", template=template, line_shape='spline', markers=True)
+        fig2 = px.line(df, x=df.index, y=["DR"], template=template, line_shape='spline', markers=True)
         fig2.add_trace(go.Scatter(x=["2020-05-01", "2030-05-01"], y=dr_target, name="DR Target", line=dict(color='#F3969A',dash='dash', width=1)))
         fig2.update_traces(
             yaxis='y2',
-            hovertemplate='Up to: %{x} <br>Dispatch Reliability: %{y}'
+            hovertemplate='<br>Up to: %{x} <br>Dispatch Reliability: %{y}'
             )
 
-        fig = px.bar(df, x=df.index, y="CYC", template=template)
+        fig = px.bar(df, x=df.index, y=["CYC"], template=template)
         fig.update_traces(
-            hovertemplate='Up to: %{x} <br>Revenue Flights: %{y}',
+            hovertemplate='<br>Up to: %{x} <br>Revenue Flights: %{y}',
             marker_line_width=0,
             width= 86400000 * 6,
             marker_color="#6CC3D4"
             )
 
         subfig.add_traces(fig.data + fig2.data)
+        newnames = {'DR':'Dispatch Reliability', 'CYC':'Cycles', 'DR Target': 'DR Target'}
+        subfig.for_each_trace(lambda x: x.update(
+            name= newnames[x.name],
+            legendgroup= newnames[x.name],
+            hovertemplate=x.hovertemplate.replace(x.name, newnames[x.name]),
+        ))
         subfig.update_layout(
             title_text= "Weekly Dispatch Reliability and Utilization",
             title_xanchor="center",
@@ -85,22 +91,28 @@ def plotFl(weekly):
         subfig = make_subplots(specs=[[{"secondary_y": True}]])
         dr_target = [95.00, 95.00]
 
-        fig2 = px.line(df, x=df.index, y="DR", template=template, line_shape='spline', markers=True)
+        fig2 = px.line(df, x=df.index, y=["DR"], template=template, line_shape='spline', markers=True)
         fig2.add_trace(go.Scatter(x=["2020-05-01", "2030-05-01"], y=dr_target, name="DR Target", line=dict(color='#F3969A',dash='dash', width=1)))
         fig2.update_traces(
             yaxis='y2',
-            hovertemplate='Period: %{x} <br>Dispatch Reliability: %{y}'
+            hovertemplate='<br>Period: %{x} <br>Dispatch Reliability: %{y}'
             )
 
-        fig = px.bar(df, x=df.index, y="CYC", template=template)
+        fig = px.bar(df, x=df.index, y=["CYC"], template=template)
         fig.update_traces(
-            hovertemplate='Period: %{x} <br>Revenue Flights: %{y}',
+            hovertemplate='<br>Period: %{x} <br>Revenue Flights: %{y}',
             marker_line_width=0,
             width= 86400000*20,
             marker_color="#6CC3D4"
             )
 
         subfig.add_traces(fig.data + fig2.data)
+        newnames = {'DR':'Dispatch Reliability', 'CYC':'Cycles', 'DR Target': 'DR Target'}
+        subfig.for_each_trace(lambda x: x.update(
+            name= newnames[x.name],
+            legendgroup= newnames[x.name],
+            hovertemplate=x.hovertemplate.replace(x.name, newnames[x.name]),
+        ))
         subfig.update_layout(
             title_text= "Monthly Dispatch Reliability and Utilization",
             title_xanchor="center",
@@ -152,25 +164,24 @@ def plotRem():
     return fig
 
 # Plots the fluids consumption
-def plotOil():
-
-    fluids_raw = pd.read_csv("./csv_data_files/FLUIDS.csv")
-    fluids = fluids_raw[['AC_REG', 'DATE', 'ENG1_OIL', 'ENG2_OIL']].dropna(thresh=1).set_index('AC_REG')
-
-    fig = px.line(fluids.loc['PK-PWC'], x="DATE", y=["ENG1_OIL", "ENG2_OIL"], line_shape='spline', markers=True)
-    newVar = {'ENG1_OIL': 'ENG1', 'ENG2_OIL': 'ENG2'}
+def plotOil(reg='PK-PWA'):
+    df1 = eng1_consum.loc[reg]
+    df2 = eng2_consum.loc[reg]
+    fig = px.line(df1, x=df1.index, y=['ENG1_OIL_QTZ/FH'], line_shape='spline', markers=True, template=template)
+    newnames = {'ENG1_OIL_QTZ/FH':'ENG1'}
     fig.for_each_trace(lambda x: x.update(
-        name = newVar[x.name],
-        legendgroup = newVar[x.name],
-        hovertemplate = x.hovertemplate.replace(x.name, newVar[x.name])
+        name= newnames[x.name],
+        legendgroup= newnames[x.name],
+        hovertemplate=x.hovertemplate.replace(x.name, newnames[x.name]),
     ))
-    fig.update_traces(hovertemplate='Date: %{x}<br>Quantity: %{y} Quarts')
+    fig.add_trace(go.Scatter(x=df2.index,y=df2['ENG2_OIL_QTZ/FH'], line_shape='spline', name='ENG2'))
+    fig.update_traces(hovertemplate='<br>Up to: %{x}<br>Consumption: %{y} Quarts/FH')
     fig.update_layout(
         title_text= "Engine Oil Consumption",
         title_xanchor="center",
         title_x=0.5,
         xaxis= dict(title='Date', type='date'),
-        yaxis= dict(title='Oil in quarts', tick0=0, dtick=1, tickmode='linear', range=[0, 10]),
+        yaxis= dict(title='Consumption (Qrt/Hr)', tick0=0, dtick=0.1, tickmode='linear', range=[0, 1]),
         modebar= dict(orientation='v', remove=['zoom', 'lasso', 'autoscale']),
         hovermode= 'x unified'
     )
@@ -250,20 +261,26 @@ def plotCOTD(weekly):
         subfig = make_subplots(specs=[[{"secondary_y": True}]])
         dr_target = [95.00, 95.00]
 
-        fig2 = px.line(df, x=df.index, y="DR", template=template, line_shape='spline', markers=True)
+        fig2 = px.line(df, x=df.index, y=["DR"], template=template,labels={'DR':'Dispatch Reliability'}, line_shape='spline', markers=True)
         fig2.add_trace(go.Scatter(x=["2020-05-01", "2030-05-01"], y=dr_target, name="DR Target", line=dict(color='#F3969A',dash='dash', width=1)))
         fig2.update_traces(
             yaxis='y2',
             hovertemplate='Period: %{x} <br>Dispatch Reliability: %{y}'
             )
 
-        fig = px.line(df, x=df.index, y="COTD", template=template, line_shape='spline', markers=True)
+        fig = px.line(df, x=df.index, y=["COTD"], template=template, line_shape='spline', markers=True)
         fig.update_traces(
             hovertemplate='Up to: %{x} <br>COTD: %{y}',
             line_color="#FFCE67"
             )
 
         subfig.add_traces(fig.data + fig2.data)
+        newnames = {'DR':'Dispatch Reliability', 'COTD':'Delay Contribution', 'DR Target': 'DR Target'}
+        subfig.for_each_trace(lambda x: x.update(
+            name= newnames[x.name],
+            legendgroup= newnames[x.name],
+            hovertemplate=x.hovertemplate.replace(x.name, newnames[x.name]),
+        ))
         subfig.update_layout(
             title_text= "Weekly Reliability and Delay Contribution",
             title_xanchor="center",
@@ -296,20 +313,26 @@ def plotCOTD(weekly):
         subfig = make_subplots(specs=[[{"secondary_y": True}]])
         dr_target = [95.00, 95.00]
 
-        fig2 = px.line(df, x=df.index, y="DR", template=template, line_shape='spline', markers=True)
+        fig2 = px.line(df, x=df.index, y=["DR"], template=template, line_shape='spline', markers=True)
         fig2.add_trace(go.Scatter(x=["2020-05-01", "2030-05-01"], y=dr_target, name="DR Target", line=dict(color='#F3969A',dash='dash', width=1)))
         fig2.update_traces(
             yaxis='y2',
             hovertemplate='Period: %{x} <br>Dispatch Reliability: %{y}'
             )
 
-        fig = px.line(df, x=df.index, y="COTD", template=template, line_shape='spline', markers=True)
+        fig = px.line(df, x=df.index, y=["COTD"], template=template, line_shape='spline', markers=True)
         fig.update_traces(
             hovertemplate='Period: %{x} <br>COTD: %{y}',
             line_color="#FFCE67"
             )
 
         subfig.add_traces(fig.data + fig2.data)
+        newnames = {'DR':'Dispatch Reliability', 'COTD':'Delay Contribution', 'DR Target': 'DR Target'}
+        subfig.for_each_trace(lambda x: x.update(
+            name= newnames[x.name],
+            legendgroup= newnames[x.name],
+            hovertemplate=x.hovertemplate.replace(x.name, newnames[x.name]),
+        ))
         subfig.update_layout(
             title_text= "Monthly Dispatch Reliability and Delay Contribution",
             title_xanchor="center",
@@ -331,4 +354,55 @@ def plotCOTD(weekly):
             hovermode='x unified'
         )
     
+    return subfig
+
+def plot5PIREP():
+    df = ucl_tbl.sort_values(by='PIREPs', ascending=False).head(5)
+    fig = px.bar(df, x=df.index, y='PIREPs', template=template)
+    return fig
+
+# Plot the PIREP UCL per ATA chapter for the last 12-month period
+def plotUCL():
+    df = ucl_tbl.fillna(0)
+
+    fig=px.bar(df, x=df.index, y='PIRRATE_12mth', template=template)
+    fig.update_traces(
+        hovertemplate='ATA: %{x} <br>PIREP Rate: %{y}',
+        marker_color='#6CC3D4',
+        yaxis='y2'
+    )
+
+    fig2 = px.bar(df, x=df.index, y='UCL', template=template)
+    fig2.update_traces(
+        marker_color='rgba(255,206,103,.25)',
+        hovertemplate='ATA: %{x} <br>Upper Control Limit: %{y}'
+        )
+    fig2.update_layout(bargap=0, bargroupgap=0)
+
+    subfig = make_subplots(specs=[[{"secondary_y": True}]])
+    subfig.add_traces(fig.data + fig2.data)
+    subfig.update_layout(
+        title_text= "Last 12-month PIREP Rate and UCL of Each ATA Chapter",
+        title_xanchor="center",
+        title_x=0.5,
+        xaxis=dict(
+            title="ATA Chapter",
+            ticklabelmode="period"
+        ),
+        yaxis2=dict(
+            title="PIREP Rate",
+            tick0=0,
+            dtick=0.015,
+            range=[0,0.02]
+        ),
+        yaxis=dict(
+            title="Upper Control Limit",
+            tick0=0,
+            dtick=0.5,
+            range=[0,2]
+        ),
+        modebar= dict(remove=['zoom', 'lasso', 'autoscale']),
+        hovermode='x unified'
+    )
+
     return subfig
