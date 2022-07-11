@@ -110,7 +110,8 @@ def get_fluids_df():
 
     eng1_consum['ENG1_OIL_QTZ/FH'] = list1
     eng2_consum['ENG2_OIL_QTZ/FH'] = list2
+    consum_summary = eng1_consum.join(eng2_consum, how='outer')
 
-    return eng1_consum, eng2_consum
+    return consum_summary
 
 

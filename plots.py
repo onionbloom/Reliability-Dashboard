@@ -11,7 +11,7 @@ from dataframes import get_fluids_df, get_util_df, get_pirep_df
 
 util_df = get_util_df()
 ucl_tbl = get_pirep_df()
-eng1_consum, eng2_consum = get_fluids_df()
+oil_consum= get_fluids_df()
 
 template = load_figure_template("minty")
 
@@ -169,8 +169,8 @@ def plotRem():
 
 # Plots the fluids consumption
 def plotOil(reg='PK-PWA'):
-    df1 = eng1_consum.loc[reg]
-    df2 = eng2_consum.loc[reg]
+    df1 = oil_consum.loc[reg][['ENG1_OIL_QTZ/FH']].dropna()
+    df2 = oil_consum.loc[reg][['ENG2_OIL_QTZ/FH']].dropna()
     fig = px.line(df1, x=df1.index, y=['ENG1_OIL_QTZ/FH'], line_shape='spline', markers=True, template=template)
     newnames = {'ENG1_OIL_QTZ/FH':'ENG1'}
     fig.for_each_trace(lambda x: x.update(
@@ -386,7 +386,12 @@ def plotUCL():
 
     subfig = make_subplots(specs=[[{"secondary_y": True}]])
     subfig.add_traces(fig.data + fig2.data)
-    
+    newnames = {'PIRRATE_12mth': 'PIREP Rate', 'UCL': 'Upper Control Limit'}
+    subfig.for_each_trace(lambda x: x.update(
+        name= newnames[x.name],
+        legendgroup= newnames[x.name],
+        hovertemplate= x.hovertemplate.replace(x.name, newnames[x.name])
+    ))
     subfig.update_layout(
         title_text= "Last 12-month PIREP Rate and UCL of Each ATA Chapter",
         title_xanchor="center",

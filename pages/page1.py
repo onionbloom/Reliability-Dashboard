@@ -1,9 +1,11 @@
-from dash import dcc, html, ctx, callback
+from dash import dcc, html, dash_table, ctx, callback
 from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
+from dash.dash_table.Format import Format, Scheme
 
 from cards import card_tia, card_dr, card_FC, card_FH, card_del, card_cotd, card_status
 from plots import plotFl, plotRem, plotOil, plotDel, plotSI, plotCOTD, plot5PIREP
+from tables import get_oil_tbl
 
 ### LAYOUT
 layout = dbc.Container([
@@ -34,7 +36,18 @@ layout = dbc.Container([
             card_status
         ],width=3),
         dbc.Col([
-            dcc.Graph(id='graph', config=dict(toImageButtonOptions=dict(width=1871, height=437, filename="dash_graph", format="png"), displaylogo=False))
+            dcc.Graph(id='graph', config=dict(toImageButtonOptions=dict(width=1871, height=437, filename="dash_graph", format="png"), displaylogo=False)),
+            dash_table.DataTable(
+                id='oil-table',
+                style_cell={
+                'font-family': 'Segoe UI,-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif',
+                'font-size': '0.75rem',
+                'text-align': 'center',
+                },
+                style_header={
+                    'font-weight': 'bold'
+                },
+            ),
         ],width=6),
         dbc.Col([
             html.H5("Plot Selection", className="fw-bold text-center", style={"color": "#013764"}),
@@ -45,7 +58,8 @@ layout = dbc.Container([
                         options=[
                             {"label": "PK-PWA", "value": "PK-PWA"},
                             {"label": "PK-PWC", "value": "PK-PWC"}
-                        ]
+                        ],
+                        value='PK-PWA'
                     ),
                     dbc.RadioItems(
                         options=[
@@ -98,18 +112,30 @@ layout = dbc.Container([
     Output('engine-radio', 'value'),
     Output('top5-radio', 'value'),
     Output('metrics-radio', 'value'),
+    Output('oil-table','data'),
+    Output('oil-table', 'columns'),
     Input('engine-radio', 'value'),
     Input('top5-radio', 'value'),
     Input('metrics-radio', 'value'),
     State('config-switch', 'value'),
-    State('dropdown-ehm', 'value')
+    State('dropdown-ehm', 'value'),
 )
 def update_graph(engineVal, topVal, metricsVal, switch, dropdown):
     triggered_id = ctx.triggered_id
 
+    tbl = None
+    columns = None
     if triggered_id == "engine-radio":
         fig = plotOil(dropdown)
-    
+        tbl = get_oil_tbl(dropdown)
+        columns = [
+                    dict(id='DATE', name='DATE'),
+                    dict(id='ENG1_OIL', name='ENG1 Oil (Qt)'),
+                    dict(id='ENG1_OIL_QTZ/FH', name='ENG1 Consumption (Qt/Hr)', type='numeric', format=Format(precision=4, scheme=Scheme.fixed)),
+                    dict(id='ENG2_OIL', name='ENG2 Oil (Qt)'),
+                    dict(id='ENG2_OIL_QTZ/FH', name='ENG2 Consumption (Qt/Hr)', type='numeric', format=Format(precision=4, scheme=Scheme.fixed))
+        ]  
+            
     elif triggered_id == "top5-radio":
         if topVal == "top5_del":
             fig = plotDel()
@@ -125,4 +151,4 @@ def update_graph(engineVal, topVal, metricsVal, switch, dropdown):
         else:
             fig = plotCOTD(switch)
     
-    return fig, " ", " ", " "
+    return fig, " ", " ", " ", tbl, columns
