@@ -1,8 +1,9 @@
 # app.py
-from http import server
-from dash import Dash, dcc, html, callback
-from dash.dependencies import Input, Output
+import dash_core_components as dcc # dcc v2.0.0 gets access to Dash core components classes
+import dash_html_components as html # dash html components v2.0.0
 import dash_bootstrap_components as dbc # dbc v1.1.0 gets access to Bootstrap v5.1.3
+from dash import Dash, callback
+from dash.dependencies import Input, Output
 
 import pandas as pd
 

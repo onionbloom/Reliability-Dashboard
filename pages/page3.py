@@ -1,7 +1,10 @@
-from dash import dcc, html, ctx, callback
+# Page 3
+import dash_core_components as dcc # dcc v2.0.0 gets access to Dash core components classes
+import dash_html_components as html # dash html components v2.0.0
+import dash_bootstrap_components as dbc # dbc v1.1.0 gets access to Bootstrap v5.1.3
+
+from dash import callback # dash v2.4.1 
 from dash.dependencies import Input, Output
-import dash_bootstrap_components as dbc
-from matplotlib.pyplot import figimage
 
 from plots import plotUCL, plotPirepPerAta
 from dataframes import get_pirep_df
