@@ -7,10 +7,9 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from dash_bootstrap_templates import load_figure_template
 
-from dataframes import get_fluids_df, get_util_df, get_pirep_df
+from dataframes import get_fluids_df, get_util_df, get_pirep_df, get_techlog_df
 
 util_df = get_util_df()
-ucl_tbl = get_pirep_df()
 oil_consum= get_fluids_df()
 
 template = load_figure_template("minty")
@@ -361,13 +360,13 @@ def plotCOTD(weekly):
     return subfig
 
 def plot5PIREP():
-    df = ucl_tbl.sort_values(by='PIREPs', ascending=False).head(5)
+    df = get_pirep_df(top5=True)
     fig = px.bar(df, x=df.index, y='PIREPs', template=template)
     return fig
 
 # Plot the PIREP UCL per ATA chapter for the last 12-month period
 def plotUCL():
-    df = ucl_tbl.fillna(0)
+    df = get_pirep_df(top5=False).fillna(0)
 
     fig=px.bar(df, x=df.index, y=['PIRRATE_12mth'], template=template)
     fig.update_traces(
@@ -417,3 +416,43 @@ def plotUCL():
     )
 
     return subfig
+
+# Plot the pirep history per ATA
+def plotPirepPerAta(ata):
+    techlog_raw = get_techlog_df()
+    df = techlog_raw[techlog_raw['PM'] == "PIREP"].groupby(['ATA',pd.Grouper(key='DATE', freq='M')])[['PM']].count()
+
+    fig = px.bar(df.loc[ata], x=df.loc[ata].index, y=['PM'], template=template)
+    fig.update_traces(
+        hovertemplate='ATA: %{x}<br>PIREP Count: %{y}',
+        marker_color='#6CC3D4'
+    )
+
+    newnames = {'PM':'PIREP Count'}
+    fig.for_each_trace(lambda x: x.update(
+        name= newnames[x.name],
+        legendgroup= newnames[x.name],
+        hovertemplate=x.hovertemplate.replace(x.name, newnames[x.name])
+    ))
+
+    fig.update_layout(
+        title_text='Monthly PIREP History for ATA {ata}'.format(ata=ata),
+        title_xanchor='center',
+        title_x=0.5,
+        xaxis=dict(
+            title='Month',
+            type='date',
+            dtick='M1',
+            range=get_x_range('M'),
+            tickformat="%b\n%Y"
+        ),
+        yaxis=dict(
+            title='PIREP Count',
+            tick0=0,
+            dtick=1,
+            tickmode='linear',
+            rangemode='tozero'
+        )
+    )
+
+    return fig

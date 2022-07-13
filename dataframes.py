@@ -28,7 +28,7 @@ def get_techlog_df():
 
 
 ### PIREP
-def get_pirep_df():
+def get_pirep_df(top5=False):
     util_df = get_util_df()
     techlog_raw = get_techlog_df()
 
@@ -81,7 +81,18 @@ def get_pirep_df():
         ucl_tbl['PIRRATE_12mth'] = ucl_tbl['PIREPs'] / mon_hrs[last12M:thisM]['FL_DURR'].sum()
         ucl_tbl['UCL'].loc[ind] = ucl
 
-    return ucl_tbl
+    if top5:
+        alert = ucl_tbl[ucl_tbl['PIRRATE_12mth'] > ucl_tbl['UCL']]
+
+        if len(alert) > 0:
+            top5_tbl = ucl_tbl.sort_values('PIRRATE_12mth', ascending=False).head(5)
+        else:
+            top5_tbl = ucl_tbl.sort_values('PIREPs', ascending=False).head(5)
+
+        return top5_tbl
+    
+    else:
+        return ucl_tbl
 
 ### FLUIDS
 def get_fluids_df():
