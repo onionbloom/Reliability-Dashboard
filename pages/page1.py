@@ -4,7 +4,7 @@ import dash_html_components as html # dash html components v2.0.0
 import dash_bootstrap_components as dbc # dbc v1.1.0 gets access to Bootstrap v5.1.3
 import dash_table # dash-table v5.0.0
 
-from dash import ctx, callback
+from dash import ctx, callback # dash v.2.5.0
 from dash.dependencies import Input, Output, State
 from dash_table.Format import Format, Scheme
 

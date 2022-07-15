@@ -1,9 +1,8 @@
 # Page 3
-import dash_core_components as dcc # dcc v2.0.0 gets access to Dash core components classes
 import dash_html_components as html # dash html components v2.0.0
 import dash_bootstrap_components as dbc # dbc v1.1.0 gets access to Bootstrap v5.1.3
 
-from dash import callback # dash v2.4.1 
+from dash import callback, dcc # dash v2.6.0 
 from dash.dependencies import Input, Output
 
 from plots import plotUCL, plotPirepPerAta
@@ -13,7 +12,7 @@ from dataframes import get_pirep_df
 layout = dbc.Container([
     dbc.Row([
         dbc.Col([
-            dcc.Graph(id='ucl-graph', figure=plotUCL(), config=dict(toImageButtonOptions=dict(width=1871, height=437, filename="dash_graph", format="png"), displaylogo=False))
+            dcc.Graph(id='ucl-graph', figure=plotUCL(), config=dict(modeBarButtonsToRemove=['toggleSpikelines', 'hoverClosestCartesian', 'hoverCompareCartesian'], toImageButtonOptions=dict(width=1871, height=437, filename="dash_graph", format="png"), displaylogo=False))
             ],
             width=9
         ),

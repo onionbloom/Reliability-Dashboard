@@ -396,7 +396,7 @@ def plotUCL():
         title_xanchor="center",
         title_x=0.5,
         xaxis=dict(
-            title="ATA Chapter"
+            title="ATA Chapter",
         ),
         yaxis2=dict(
             title="PIREP Rate",
