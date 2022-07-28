@@ -1,8 +1,7 @@
 # Page 3
-import dash_html_components as html # dash html components v2.0.0
 import dash_bootstrap_components as dbc # dbc v1.1.0 gets access to Bootstrap v5.1.3
 
-from dash import callback, dcc # dash v2.6.0 
+from dash import callback, dcc, html # dash v2.6.0 
 from dash.dependencies import Input, Output
 
 from plots import plotUCL, plotPirepPerAta

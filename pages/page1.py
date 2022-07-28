@@ -1,12 +1,9 @@
 # Page 1
-import dash_core_components as dcc # dcc v2.0.0 gets access to Dash core components classes
-import dash_html_components as html # dash html components v2.0.0
 import dash_bootstrap_components as dbc # dbc v1.1.0 gets access to Bootstrap v5.1.3
-import dash_table # dash-table v5.0.0
 
-from dash import ctx, callback # dash v.2.5.0
+from dash import ctx, callback, dcc, html, dash_table # dash v.2.5.0
 from dash.dependencies import Input, Output, State
-from dash_table.Format import Format, Scheme
+from dash.dash_table.Format import Format, Scheme
 
 from cards import card_tia, card_dr, card_FC, card_FH, card_del, card_cotd, card_status
 from plots import plotFl, plotRem, plotOil, plotDel, plotSI, plotCOTD, plot5PIREP
